@@ -54,8 +54,8 @@ userSchema.methods.getJwtToken = function(){
 userSchema.methods.isValidPassword = async function(enteredPassword){
     // if(!this.isModified('password')){
     //          next()
-    // }
-   return  await bcrypt.compare(enteredPassword,this.password)
+    //await }
+   return   bcrypt.compare(enteredPassword,this.password)
 }
 //reset password
 userSchema.methods.getResetToken= function(){

@@ -4,6 +4,7 @@ const sendEmail = require('../utils/email')
 const ErrorHandler = require('../utils/errorHandler')
 const errorHandler = require('../utils/errorHandler')
 const sendToken = require('../utils/jwt')
+const crypto = require('crypto')
 
 //registration : /api/v1/register
 
@@ -50,7 +51,8 @@ exports.logoutUser = (req,res,next)=>{
 // forgot password= api/v1/password/forgot
 
 exports.forgotPassword= catchAsyncError(async(req,res,next)=>{
-  const user =  await User.findOne({email:req.body.email})
+  // const user =  await User.findOne({email: req.body.email})
+  const user =  await User.findOne({email: req.body.email});
   if(!user){
     return next(new ErrorHandler('user not found this email id'))
   }
@@ -71,6 +73,7 @@ try{
     })
 }
 catch(error){
+ 
      user.resetPasswordToken= undefined
      user.resetPasswordTokenExpire= undefined
      await user.save({validateBeforeSave:false})
@@ -78,3 +81,24 @@ catch(error){
 }
 
 })
+
+exports.resetPassword= catchAsyncError(async(req,res,next)=>{
+  const resetPasswordToken = crypto.createHash('sha256').update(req.params.token).digest('hex')
+  const user = await User.findOne({resetPasswordToken,
+      resetPasswordTokenExpire:{
+        $gt:Date.now()
+      }
+    })
+    if(!user){
+      returnnext(new errorHandler('password reset token is invalid or expires'))
+    }
+    if(req.body.password !== req.body.confirmPassword){
+      return next(new errorHandler('password does not match'))
+    }
+    user.password = req.body.password
+    user.resetPasswordToken = undefined
+    user.resetPasswordTokenExpire = undefined
+    await user.save({validateBeforeSave:false})
+
+    sendToken(user,201,res)
+  }) 
