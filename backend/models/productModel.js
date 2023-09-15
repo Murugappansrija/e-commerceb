@@ -151,11 +151,13 @@ const productSchema = new mongoose.Schema({
         default: 0
     },
     reviews: [
-        {
-            user:{
-                type:mongoose.Schema.Types.ObjectId,
-                ref: 'User'
-            },
+        {         
+             user: mongoose.Schema.Types.ObjectId,
+
+            // user:{
+            //     type:mongoose.Schema.Types.ObjectId,
+            //      ref: 'User'
+            // },
             rating: {
                 type: String,
                 required: true
