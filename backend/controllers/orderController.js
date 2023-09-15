@@ -98,3 +98,17 @@ async function updateStock(productId,quantity){
       product.stock =product.stock-quantity
       product.save({validateBeforeSave: false})
 }
+
+//admin delete Order -api/v1/order/:id
+exports.deleteOrder = catchAsyncError(async(req,res,next)=>{
+  const order = await Order.findById(req.params.id)
+  if(!order){
+    return next(new ErrorHandler(`order not found with this id ${req.params.id}`))
+
+  }
+   await order.deleteOne()
+   res.status(200).json({
+    success: true,
+    message: 'Order deleted'
+   })
+})
